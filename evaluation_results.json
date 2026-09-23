@@ -1,0 +1,13 @@
+{
+  "baseline_accuracy": 0.9091,
+  "finetuned_accuracy": 0.7,
+  "improvement": -0.2091,
+  "test_set_size": 30,
+  "label_map": {
+    "Recommendation": 0,
+    "Review": 1,
+    "Literary_Analysis": 2,
+    "Publishing_and_Book_Info": 3
+  },
+  "model": "distilbert-base-uncased"
+}
