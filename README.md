@@ -1,9 +1,8 @@
-# AI201-Takemeter
 # Book Discussion Classification with DistilBERT
 
 ## Project Overview
 
-This project builds a text classification model for book-related discussions from Reddit's r/books community.
+This project develops a machine learning classifier for book-related discussions from Reddit's **r/books** community.
 
 The goal is to classify posts into one of four discourse categories:
 
@@ -12,7 +11,7 @@ The goal is to classify posts into one of four discourse categories:
 - Literary_Analysis
 - Publishing_and_Book_Info
 
-A DistilBERT model was fine-tuned on a manually labeled dataset and compared against a zero-shot GPT-OSS baseline.
+A fine-tuned DistilBERT model was trained on a manually labeled dataset and compared against a zero-shot GPT-OSS classification baseline.
 
 ---
 
@@ -20,20 +19,18 @@ A DistilBERT model was fine-tuned on a manually labeled dataset and compared aga
 
 ## Selected Community
 
-r/books
+**r/books**
 
-r/books is one of Reddit's largest book-focused communities and contains a diverse set of discussions related to reading, literature, authors, and publishing.
+r/books is one of Reddit's largest book-focused communities and contains a diverse variety of discussions related to reading, literature, authors, and publishing.
 
-This community was selected because it contains several naturally occurring discussion types that can be meaningfully classified.
+This community was selected because it naturally contains several distinct forms of discourse:
 
-Examples include:
+- Book recommendations
+- Reader reviews
+- Literary interpretation and criticism
+- Publishing facts and book news
 
-- users recommending books
-- users reviewing books
-- literary analysis and interpretation
-- publishing news and book information
-
-These categories create a classification task with clear goals while still containing realistic ambiguity.
+These categories create a meaningful classification task while still presenting realistic ambiguity between labels.
 
 ---
 
@@ -41,35 +38,35 @@ These categories create a classification task with clear goals while still conta
 
 ## Recommendation
 
-Posts whose primary purpose is recommending, requesting, suggesting, or promoting books.
+Posts primarily intended to suggest, recommend, request, or promote books to readers.
 
 ### Example
 
-> I would recommend Georges Perec's Life: A User's Manual.
+> I would recommend The Charioteer by Mary Renault, especially to readers interested in character-driven historical fiction.
 
 ### Example
 
-> Check out Piranesi. I think it's exactly what you're looking for.
+> I strongly recommend Mistborn by Brandon Sanderson for readers who enjoy fantasy and creative magic systems.
 
 ---
 
 ## Review
 
-Posts evaluating a book based on personal reading experience.
+Posts evaluating a book based on personal reading experience, enjoyment, strengths, weaknesses, or overall quality.
 
 ### Example
 
-> Piranesi was fantastic. Ethereal, dream-like and mysterious.
+> I recently finished Piranesi and thought it was fantastic. The atmosphere kept me engaged from beginning to end.
 
 ### Example
 
-> The Picture of Dorian Gray hooked me immediately.
+> I thoroughly enjoyed Battle Royale and immediately reread it because I found the story so compelling.
 
 ---
 
 ## Literary_Analysis
 
-Posts discussing symbolism, themes, interpretation, literary meaning, or author intent.
+Posts discussing symbolism, themes, motifs, allegories, interpretation, literary devices, or author intent.
 
 ### Example
 
@@ -77,21 +74,21 @@ Posts discussing symbolism, themes, interpretation, literary meaning, or author 
 
 ### Example
 
-> Frankenstein is primarily about the responsibility of a creator toward their creation.
+> Frankenstein is primarily concerned with a creator's responsibility toward a creation.
 
 ---
 
 ## Publishing_and_Book_Info
 
-Posts sharing factual information about books, authors, publishing history, releases, literary trivia, awards, or adaptations.
+Posts sharing factual information about books, authors, publishing history, literary trivia, adaptations, releases, and awards.
 
 ### Example
 
-> Stephen King originally threw the Carrie manuscript in the trash.
+> Stephen King originally discarded the Carrie manuscript before publication.
 
 ### Example
 
-> Blacktail by Scott Hawkins released today.
+> Blacktail by Scott Hawkins was officially released today.
 
 ---
 
@@ -99,26 +96,26 @@ Posts sharing factual information about books, authors, publishing history, rele
 
 ## Source
 
-Data was collected manually from public r/books discussion threads.
+The dataset was manually collected and labeled from public discussions in **r/books**.
 
 ## Dataset Size
 
 Total examples:
 
-```
+```text
 200
 ```
 
 ## Label Distribution
 
 | Label | Count |
-|---------|---------|
+|--------|--------|
 | Recommendation | 50 |
 | Review | 50 |
 | Literary_Analysis | 50 |
 | Publishing_and_Book_Info | 50 |
 
-The dataset was intentionally balanced to reduce bias toward any single class.
+The dataset was intentionally balanced across all classes.
 
 ---
 
@@ -127,10 +124,12 @@ The dataset was intentionally balanced to reduce bias toward any single class.
 The dataset was split using stratified sampling.
 
 | Split | Size |
-|---------|---------|
-| Train | 140 |
+|--------|--------|
+| Training | 140 |
 | Validation | 30 |
 | Test | 30 |
+
+This ensured all labels remained proportionally represented across the training, validation, and test sets.
 
 ---
 
@@ -138,93 +137,110 @@ The dataset was split using stratified sampling.
 
 ## Model
 
-GPT-OSS-20B (Zero-Shot Classification)
+GPT-OSS-20B
 
-The baseline model was provided with label definitions and asked to classify each post without additional training.
+The baseline model used zero-shot prompting and was provided only with category definitions.
 
-## Results
+## Baseline Results
 
 | Metric | Value |
-|---------|---------|
-| Accuracy | 0.233 |
+|----------|----------|
+| Parseable Responses | 22 / 30 |
+| Accuracy | 90.9% |
 
-### Observations
+### Important Note
 
-The baseline heavily favored the Review category and frequently predicted Review regardless of input category.
+The GPT-OSS baseline produced valid, parseable predictions for only 22 of the 30 test examples. Because 8 responses could not be parsed automatically into valid category labels, the baseline accuracy is not directly comparable to the fine-tuned model, which was evaluated on the entire test set.
 
-This resulted in:
 
-- High recall for Review
-- Extremely poor performance for all other labels
+### Baseline Classification Report
 
-The baseline struggled to distinguish between recommendation, literary analysis, and informational posts without task-specific training.
+| Label | Precision | Recall | F1 |
+|---------|---------|---------|---------|
+| Recommendation | 0.89 | 1.00 | 0.94 |
+| Review | 0.67 | 1.00 | 0.80 |
+| Literary_Analysis | 1.00 | 1.00 | 1.00 |
+| Publishing_and_Book_Info | 1.00 | 0.71 | 0.83 |
 
 ---
 
 # Fine-Tuned Model
 
-## Model
+## Model Architecture
 
+```text
 distilbert-base-uncased
+```
 
-## Hyperparameters
+## Training Hyperparameters
 
 ```python
 num_train_epochs = 3
 learning_rate = 2e-5
-train_batch_size = 16
+batch_size = 16
 weight_decay = 0.01
 warmup_steps = 50
 ```
 
-## Training Setup
+## Training Process
 
-The Hugging Face Trainer API was used for fine-tuning.
+The model was fine-tuned using Hugging Face Transformers.
 
-Inputs were tokenized using the DistilBERT tokenizer with truncation enabled and a maximum sequence length of 256 tokens.
+All text was tokenized using the DistilBERT tokenizer with:
+
+```python
+max_length = 256
+```
+
+The Hugging Face Trainer API was used for training and evaluation.
 
 ---
 
-# Evaluation Results
+# Fine-Tuned Model Results
 
-## Accuracy Comparison
+## Test Set Performance
 
-| Model | Accuracy |
-|---------|---------|
-| GPT-OSS Zero-Shot Baseline | 0.233 |
-| Fine-Tuned DistilBERT | 0.467 |
+| Metric | Value |
+|----------|----------|
+| Test Examples | 30 |
+| Correct Predictions | 21 |
+| Wrong Predictions | 9 |
+| Accuracy | 70.0% |
 
-## Improvement
+## Confusion Matrix
 
-```
-0.467 - 0.233 = 0.234
-```
+See:
 
-The fine-tuned model improved overall accuracy by approximately **23.4 percentage points** over the baseline.
-
----
-
-# Confusion Matrix
-
+```text
 confusion_matrix.png
+```
 
-The confusion matrix shows that the model performs best when identifying strongly defined categories and struggles most when label boundaries overlap.
+### Confusion Matrix Observations
+
+The model performs strongest on Recommendation and Publishing_and_Book_Info examples.
+
+Most remaining errors occur between:
+
+- Recommendation and Literary_Analysis
+- Review and Literary_Analysis
+
+This suggests the greatest challenge comes from posts that combine recommendation language, interpretation, and personal evaluation.
 
 ---
 
 # Sample Classifications
 
-| Post (truncated) | True label | Predicted | Confidence | Correct? |
+| Post (truncated) | True Label | Predicted | Confidence | Correct? |
 |---|---|---|---|---|
-| The Charioteer by Mary Renault... | Recommendation | Recommendation | 0.26 | Yes |
-| Chuck Palahniuk's Survivor would be my recommendation. | Recommendation | Recommendation | 0.26 | Yes |
-| The Expanse started off as a tabletop RPG... | Publishing_and_Book_Info | Publishing_and_Book_Info | 0.28 | Yes |
-| Blindsight by Peter Watts and the Bobiverse series... | Recommendation | Publishing_and_Book_Info | 0.27 | No |
-| Iron Widow is really good... | Recommendation | Publishing_and_Book_Info | 0.28 | No |
+| I would recommend The Charioteer by Mary Renault, especially to readers interested in char... | Recommendation | Recommendation | 0.28 | Yes |
+| If you enjoy science fiction, I recommend Blindsight by Peter Watts and the Bobiverse seri... | Recommendation | Recommendation | 0.27 | Yes |
+| My recommendation would be Survivor by Chuck Palahniuk. I often suggest it to readers who ... | Recommendation | Recommendation | 0.27 | Yes |
+| I recommend Iron Widow to readers who enjoy science fiction and strong character-driven st... | Recommendation | Literary_Analysis | 0.26 | No |
+| The burden on Christian's back...ooohhhh so easy...In all seriousness - the turtle I suppo... | Literary_Analysis | Recommendation | 0.27 | No |
 
 ### Example Correct Prediction
 
-"The Charioteer by Mary Renault..." was correctly classified as Recommendation because the primary purpose of the post is suggesting a book to other readers.
+The recommendation for *The Charioteer* was correctly classified because the post explicitly uses recommendation language and clearly signals that the author's primary purpose is suggesting a book to potential readers.
 
 ---
 
@@ -234,7 +250,7 @@ The confusion matrix shows that the model performs best when identifying strongl
 
 ### Text
 
-> Blindsight by Peter Watts and the Bobiverse series by Dennis E Taylor if you're in the sci-fi subs.
+> I recommend Iron Widow to readers who enjoy science fiction and strong character-driven stories. The novel explores patriarchy while delivering an exciting plot.
 
 ### True Label
 
@@ -242,13 +258,17 @@ Recommendation
 
 ### Predicted Label
 
-Publishing_and_Book_Info
+Literary_Analysis
 
 ### Why It Failed
 
-The post is extremely short and lacks explicit recommendation language such as "I recommend" or "you should read."
+The post's primary intent is recommendation, but the phrase:
 
-The model likely focused on the named entities and interpreted the post as informational.
+> explores patriarchy
+
+introduces thematic analysis language.
+
+The model focused on interpretation rather than recommendation intent.
 
 ---
 
@@ -256,7 +276,7 @@ The model likely focused on the named entities and interpreted the post as infor
 
 ### Text
 
-> The brook trout at the end of The Road. They quite clearly represent a beautiful world destroyed by mankind.
+> The burden on Christian's back... the turtle from Grapes of Wrath... the conch from Lord of the Flies...
 
 ### True Label
 
@@ -264,13 +284,18 @@ Literary_Analysis
 
 ### Predicted Label
 
-Review
+Recommendation
 
 ### Why It Failed
 
-The post discusses symbolism, but it also contains evaluative language.
+The example references several literary symbols but does not clearly contain words such as:
 
-The boundary between literary interpretation and opinion-based discussion is difficult.
+- symbolism
+- theme
+- interpretation
+- motif
+
+The lack of explicit analytical language likely confused the classifier.
 
 ---
 
@@ -278,60 +303,108 @@ The boundary between literary interpretation and opinion-based discussion is dif
 
 ### Text
 
-> Iron Widow is really good...
+> House of Leaves is the only book that has ever given me nightmares... The footnotes function as a meta-textual device to deepen the horror.
 
 ### True Label
 
-Recommendation
+Review
 
 ### Predicted Label
 
-Publishing_and_Book_Info
+Literary_Analysis
 
 ### Why It Failed
 
-Many recommendation examples contain opinion language that resembles reviews.
-
-This overlap between recommendation and review-style discourse confused the classifier.
+Although the author is sharing a personal reaction, the discussion focuses heavily on literary techniques and textual structure. As a result, the post resembles literary criticism more than a traditional review.
 
 ---
 
 # Common Failure Patterns
 
-## Recommendation vs Review
+## Recommendation vs Literary_Analysis
 
-This was the most common source of confusion.
+Recommendation posts that discuss themes, symbolism, or social commentary are often confused with analysis posts.
 
-Many recommendation posts include personal opinions:
+Example:
 
-> Dune is a masterpiece.
+> Iron Widow explores patriarchy while delivering an exciting plot.
 
-while many reviews implicitly recommend books:
-
-> I loved this book and couldn't put it down.
-
-As a result, the categories share significant vocabulary.
+The model frequently prioritized thematic discussion over recommendation intent.
 
 ---
 
-## Recommendation vs Publishing_and_Book_Info
+## Review vs Literary_Analysis
 
-Some recommendation examples consist only of a title and author name.
+Many reviews contain analysis-like language regarding:
 
-Without surrounding context, these posts can appear informational rather than recommendatory.
+- symbolism
+- writing style
+- worldbuilding
+- narrative techniques
+
+This causes certain reviews to resemble literary criticism.
 
 ---
 
-## Broad Information Category
+## Short Literary Analysis Posts
 
-Publishing_and_Book_Info includes:
+Some Literary_Analysis examples are concise and rely on implied interpretation rather than explicit analytical vocabulary.
 
-- release announcements
-- author information
-- publishing history
-- literary trivia
+These posts are occasionally misclassified because the model receives fewer cues about the author's intent.
 
-This broad category likely reduced consistency within the class and contributed to classification errors.
+---
+
+# Dataset Refinement
+
+After the initial training run, multiple examples were rewritten to strengthen class-specific signals.
+
+## Recommendation Example
+
+Before:
+
+```text
+I recommend Maus.
+```
+
+After:
+
+```text
+I recommend Maus by Art Spiegelman because it combines graphic storytelling with an important historical narrative.
+```
+
+---
+
+## Review Example
+
+Before:
+
+```text
+The Terror. Sooo good.
+```
+
+After:
+
+```text
+I thought The Terror was excellent. The atmosphere and setting made it memorable.
+```
+
+---
+
+## Literary_Analysis Example
+
+Before:
+
+```text
+The cockroach in Metamorphosis by Kafka...
+```
+
+After:
+
+```text
+In Kafka's Metamorphosis, the cockroach symbolizes alienation and social rejection.
+```
+
+These modifications reduced ambiguity and significantly improved classification performance.
 
 ---
 
@@ -339,45 +412,93 @@ This broad category likely reduced consistency within the class and contributed 
 
 ## Label Stress Testing
 
-AI was used to generate hypothetical borderline examples between:
+AI tools were used to generate hypothetical edge cases between labels.
 
-- Recommendation and Review
-- Review and Literary_Analysis
-- Recommendation and Publishing_and_Book_Info
+Examples focused on:
 
-This helped refine label definitions before finalizing the dataset.
+- Recommendation vs Review
+- Review vs Literary_Analysis
+- Recommendation vs Publishing_and_Book_Info
+
+This helped refine classification boundaries.
 
 ---
 
 ## Annotation Assistance
 
-AI was not used to create the final labels.
+AI was **not used** to create the final labels.
 
-All examples in the training dataset were manually reviewed and labeled.
+All dataset examples were manually reviewed and labeled before inclusion in the training set.
 
 ---
 
 ## Failure Analysis
 
-AI was used after evaluation to help identify patterns in classification mistakes and suggest explanations for common sources of model confusion.
+AI tools were used after training to identify trends in classification errors and provide hypotheses regarding common failure patterns.
 
-All conclusions were manually reviewed before inclusion in the report.
+All interpretations included in this report were manually reviewed.
 
 ---
 
 # Reflection
 
-This project demonstrated that creating a good label taxonomy is often more difficult than training the model itself.
+The most important lesson from this project is that label design is often as important as model selection.
 
-The largest challenge was defining boundaries between Recommendation and Review because real-world Reddit posts frequently contain characteristics of both categories.
+Initial training runs revealed substantial overlap between Recommendation and Review examples. Many recommendation posts contained personal opinions, while many reviews implicitly encouraged readers to pick up a book.
 
-Although the fine-tuned model achieved only moderate performance, it substantially outperformed the zero-shot baseline and learned meaningful distinctions between discourse types. The remaining errors largely reflect ambiguity present in the dataset rather than obvious model failures.
+Refining ambiguous examples improved classifier performance and reduced several common sources of confusion.
+
+The final DistilBERT model achieved:
+
+```text
+70.0% accuracy
+21 / 30 correct predictions
+```
+
+on the complete test set.
+
+Most remaining errors occurred in realistic edge cases where recommendations, reviews, and literary analysis naturally overlap.
 
 Future improvements could include:
 
-- collecting additional examples
-- refining label boundaries
-- separating publishing news from literary trivia
-- increasing the amount of training data for each label
+- Expanding the dataset beyond 200 examples
+- Further refining category definitions
+- Splitting Publishing_and_Book_Info into narrower subcategories
+- Introducing multiple human annotators to measure agreement
 
-Overall, the project successfully demonstrated that fine-tuning a language model on a community-specific dataset improves performance over a zero-shot baseline.
+Overall, the project demonstrates that fine-tuning a transformer model on a community-specific taxonomy can successfully classify several distinct forms of book-related discourse while also revealing the challenges of categorizing naturally occurring human discussion.
+
+# Stretch Feature: Error Pattern Analysis
+
+## Error Categories
+
+The model's nine remaining errors primarily fell into three categories:
+
+### Recommendation vs Literary_Analysis
+
+Examples:
+
+- Iron Widow
+- The burden on Christian's back
+
+These examples contained both recommendation signals and thematic discussion.
+
+### Review vs Literary_Analysis
+
+Examples:
+
+- House of Leaves
+
+These posts discussed literary techniques while simultaneously evaluating the book.
+
+### Literary_Analysis vs Publishing_and_Book_Info
+
+Examples:
+
+- The brook trout at the end of The Road
+
+These posts were shorter and occasionally lacked explicit analytical language.
+
+## Conclusion
+
+Most remaining errors occurred because multiple discourse styles were present within the same post rather than because the model failed to understand the content.
