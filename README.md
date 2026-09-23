@@ -502,3 +502,11 @@ These posts were shorter and occasionally lacked explicit analytical language.
 ## Conclusion
 
 Most remaining errors occurred because multiple discourse styles were present within the same post rather than because the model failed to understand the content.
+
+# Stretch Feature: Confidence Analysis
+
+Correct predictions typically produced confidence values between 0.27 and 0.31.
+
+Several incorrect predictions produced confidence values similar to correct predictions, suggesting that confidence scores were not strongly calibrated.
+
+This indicates the model was often confidently incorrect when category boundaries overlapped.
