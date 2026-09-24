@@ -510,3 +510,40 @@ Correct predictions typically produced confidence values between 0.27 and 0.31.
 Several incorrect predictions produced confidence values similar to correct predictions, suggesting that confidence scores were not strongly calibrated.
 
 This indicates the model was often confidently incorrect when category boundaries overlapped.
+# Stretch Feature: Interactive Classifier
+
+A Gradio web interface was created to allow users to interact directly with the trained model.
+
+Users can enter any book-related discussion post and receive:
+
+- Predicted category
+- Model confidence score
+
+The interface supports all four project categories:
+
+- Recommendation
+- Review
+- Literary_Analysis
+- Publishing_and_Book_Info
+
+This stretch feature demonstrates how the trained model could be deployed as part of a real-world application for organizing and analyzing online book discussions.
+
+## Example Usage
+
+Input:
+
+> I highly recommend Mistborn to fantasy readers.
+
+Output:
+
+> Recommendation (92% confidence)
+
+Input:
+
+> The green light in The Great Gatsby symbolizes Gatsby's hopes and dreams.
+
+Output:
+
+> Literary_Analysis (88% confidence)
+
+Demo VIdeo: https://youtu.be/OG03BjKS1Xc?is=G9U1ihN9_b-sEhay
