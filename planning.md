@@ -118,3 +118,39 @@ Examples are collected manually and stored in a CSV file with the following colu
 
 ```text
 text,label
+### Evaluation Metrics
+
+Accuracy will be used to measure overall classification performance across all four categories.
+
+Precision will measure how often predictions for a category are correct.
+
+Recall will measure how many examples of a category are successfully identified.
+
+F1 Score will balance precision and recall into a single metric.
+
+Macro F1 is especially important because all four labels are equally important. Macro F1 prevents performance on a larger class from dominating the evaluation and provides a fair measure across categories.
+
+Using multiple metrics provides a more complete evaluation than accuracy alone because some labels may be more difficult to distinguish than others.
+
+Definition of Success
+
+The project will be considered successful if:
+
+Accuracy exceeds 65%
+Macro F1 exceeds 0.60
+No individual category has an F1 score below 0.50
+The fine-tuned model demonstrates meaningful improvement over early experimental runs
+The model correctly identifies the majority of Recommendation and Literary_Analysis examples
+
+### AI Tool Plan
+
+AI tools will be used for:
+
+Generating challenging edge-case examples
+Testing classification boundaries between labels
+Identifying recurring error patterns during evaluation
+Assisting with interpretation of evaluation results
+
+AI will not be used to automatically label the final dataset.
+
+All dataset labels will be manually assigned and reviewed before inclusion in the training set.
